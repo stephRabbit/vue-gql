@@ -1,0 +1,148 @@
+<template>
+  <v-app style="background: #E3E3EE">
+    <!-- Horizontal toolbar -->
+    <v-navigation-drawer
+      app
+      temporary
+      fixed
+      v-model="sideNav"
+    >
+      <v-toolbar
+        dark
+        flat
+        color="accent"
+      >
+        <v-toolbar-side-icon @click="toggleSideNav"></v-toolbar-side-icon>
+        <router-link
+          to="/"
+          tag="span"
+          style="cursor:pointer"
+        >
+          <h1 class="title pl-3">ShareIt</h1>
+        </router-link>
+      </v-toolbar>
+
+      <v-divider></v-divider>
+      <v-list>
+        <v-list-tile
+          ripple
+          :key="item.route"
+          :to="item.route"
+          v-for="item in navItemsSide"
+        >
+          <v-list-tile-action>
+            <v-icon left>{{item.icon}}</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            {{item.title}}
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- Horizontal toolbar -->
+    <v-toolbar
+      fixed
+      color="primary"
+      dark
+    >
+      <v-toolbar-side-icon @click="toggleSideNav"></v-toolbar-side-icon>
+      <v-toolbar-title class="hidden-xs-only">
+        <router-link
+          to="/"
+          tag="span"
+          style="cursor:pointer"
+        >
+          ShareIt
+        </router-link>
+      </v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <!-- Search input -->
+      <v-text-field
+        flex
+        prepend-icon="search"
+        placeholder="Search post"
+        single-line
+      ></v-text-field>
+
+      <v-spacer></v-spacer>
+
+      <!-- Navbar links -->
+      <v-toolbar-items class="hidden-xs-only">
+        <v-btn
+          flat
+          class="hidden-sm-only"
+          :key="item.route"
+          :to="item.route"
+          v-for="item in navItems"
+        >
+          <v-icon left>{{item.icon}}</v-icon>
+          {{item.title}}
+        </v-btn>
+      </v-toolbar-items>
+    </v-toolbar>
+
+    <!-- Main views from router -->
+    <main>
+      <v-container class="mt-4">
+        <transition name="fade">
+          <router-view />
+        </transition>
+      </v-container>
+    </main>
+  </v-app>
+</template>
+
+<script>
+export default {
+  name: "App",
+  data() {
+    return {
+      sideNav: false
+    };
+  },
+  computed: {
+    navItems() {
+      return [
+        { icon: "chat", title: "Post", route: "/post" },
+        { icon: "lock_open", title: "Sign In", route: "/signin" },
+        { icon: "create", title: "Sign Up", route: "/signup" }
+      ];
+    },
+    navItemsSide() {
+      return [
+        { icon: "chat", title: "Post", route: "/post" },
+        { icon: "lock_open", title: "Sign In", route: "/signin" },
+        { icon: "create", title: "Sign Up", route: "/signup" }
+      ];
+    }
+  },
+  methods: {
+    toggleSideNav() {
+      this.sideNav = !this.sideNav;
+    }
+  }
+};
+</script>
+
+<style scoped>
+  .fade-enter-active,
+  .fade-leave-active {
+    /* transition-property: all; */
+    transition-property: opacity;
+    transition-duration: .2s;
+  }
+
+  .fade-enter-active {
+    transition-delay: .2s;
+  }
+
+  .fade-enter,
+  .fade-leave-active {
+    opacity: 0;
+    /* transform: translateX(-25px) */
+  }
+</style>
+
