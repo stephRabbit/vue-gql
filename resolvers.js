@@ -1,4 +1,11 @@
+require('dotenv').config({ path: 'variables.env' })
 const bcyrpt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+const createToken = (user, secert, expiresIn) => {
+  const { username, email } = user
+  return jwt.sign({ username, email }, secert, { expiresIn })
+}
 
 module.exports = {
   Query: {
@@ -64,7 +71,7 @@ module.exports = {
           throw new Error('Invalid password!')
         }
 
-        return user
+        return { token: createToken(user, process.env.APP_SECERT, '1hr') }
       } catch (err) {
         throw new Error(`Error: ${err}`)
       }
@@ -84,7 +91,7 @@ module.exports = {
           password
         }).save()
 
-        return newUser
+        return { token: createToken(newUser, process.env.APP_SECERT, '1hr') }
       } catch (err) {
         throw new Error(`Error: ${err}`)
       }
