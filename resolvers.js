@@ -1,3 +1,5 @@
+const bcyrpt = require('bcrypt')
+
 module.exports = {
   Query: {
     /**
@@ -43,8 +45,28 @@ module.exports = {
         }).save()
 
         return newPost
-      } catch (e) {
-        throw new Error(`Error: ${e}`)
+      } catch (err) {
+        throw new Error(`Error: ${err}`)
+      }
+    },
+
+    signInUser: async (_, { username, password }, { User }, info) => {
+      try {
+        const user = await User.findOne({ username })
+
+        if (!user) {
+          throw new Error('User not found!')
+        }
+
+        const isValidPassword = await bcyrpt.compare(password, user.password)
+
+        if (!isValidPassword) {
+          throw new Error('Invalid password!')
+        }
+
+        return user
+      } catch (err) {
+        throw new Error(`Error: ${err}`)
       }
     },
 
@@ -53,7 +75,7 @@ module.exports = {
         const user = await User.findOne({ username })
 
         if (user) {
-          throw new Error('User already exists')
+          throw new Error('User already exists!')
         }
 
         const newUser = await new User({
@@ -63,9 +85,9 @@ module.exports = {
         }).save()
 
         return newUser
-      } catch (e) {
-        throw new Error(`Error: ${e}`)
+      } catch (err) {
+        throw new Error(`Error: ${err}`)
       }
-    }
+    },
   }
 }
