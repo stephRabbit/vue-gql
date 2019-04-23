@@ -44,3 +44,5 @@ export default new Vuex.Store({
     loading: state => state.loading
   }
 })
+
+
