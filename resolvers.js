@@ -10,13 +10,24 @@ const createToken = (user, secert, expiresIn) => {
 module.exports = {
   Query: {
     /**
-     * @params _ - object that contains the result returned from the resolver on the parent field - root
+     * @params _ - { ROOT } object that contains the result returned from the resolver on the parent field - root
      * @params args - argument passed form typeDefs
      * @params context - Models
      * @params info - contains information about the execution state of the query, including the field name, path to the field from the root ...
      */
-    getPosts: async (_, agrs, { Post }, info) => {
+    getCurrentUser: async (_, agrs, { User, currentUser }, info) => {
+      if (!currentUser) {
+        return null
+      }
 
+      const user = await User.findOne({ username: currentUser.username }).populate({
+        path: 'favorites',
+        model: 'Post'
+      })
+
+      return user
+    },
+    getPosts: async (_, agrs, { Post }, info) => {
       const post = await Post.find({})
         .sort({ createdDate: 'desc' })
         .populate({ // turn objectID from createdBy: { ..., ref: "User" } and convert to User object
@@ -30,7 +41,7 @@ module.exports = {
 
   Mutation: {
     /**
-     * @params _ - object that contains the result returned from the resolver on the parent field - root
+     * @params _ - { ROOT } object that contains the result returned from the resolver on the parent field - root
      * @params args - argument passed form typeDefs
      * @params context - Models
      * @params info - contains information about the execution state of the query, including the field name, path to the field from the root ...
