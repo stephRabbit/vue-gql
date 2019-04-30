@@ -62,6 +62,9 @@ export default new Vuex.Store({
         })
     },
     signInUser: ({ commit }, payload) => {
+      // Set token to as empty to clear malformed token
+      localStorage.setItem('token', '')
+
       apolloClient
         .mutate({
           mutation: SIGN_IN_USER,

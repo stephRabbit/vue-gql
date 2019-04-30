@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import ProtectedRoutes from './ProtectedRoutes'
 import Home from './components/Home.vue'
 import AddPost from './components/posts/AddPost.vue'
 import Post from './components/posts/Post.vue'
@@ -31,7 +32,8 @@ export default new Router({
     {
       path: '/profile',
       name: 'Profile',
-      component: Profile
+      component: Profile,
+      beforeEnter: ProtectedRoutes
     },
     {
       path: '/signin',
