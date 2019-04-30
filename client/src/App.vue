@@ -39,7 +39,11 @@
         </v-list-tile>
 
         <!-- Sign out link -->
-        <v-list-tile ripple v-if="user">
+        <v-list-tile
+          ripple
+          v-if="user"
+          @click="handleSignOutUser"
+        >
           <v-list-tile-action>
             <v-icon left>exit_to_app</v-icon>
           </v-list-tile-action>
@@ -119,6 +123,7 @@
           flat
           class="hidden-sm-only"
           v-if="user"
+          @click="handleSignOutUser"
         >
           <v-icon
             class="hidden-sm-only"
@@ -189,6 +194,9 @@ export default {
   methods: {
     toggleSideNav() {
       this.sideNav = !this.sideNav
+    },
+    handleSignOutUser() {
+      this.$store.dispatch('signOutUser')
     }
   }
 }
