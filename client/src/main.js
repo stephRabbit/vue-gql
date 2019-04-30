@@ -53,7 +53,7 @@ new Vue({
   store,
   render: h => h(App),
   created() {
-    // execute getCurrentUser query
+    // Execute getCurrentUser query on page load
     this.$store.dispatch('getCurrentUser')
   }
 }).$mount('#app')

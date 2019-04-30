@@ -37,6 +37,16 @@
             {{item.title}}
           </v-list-tile-content>
         </v-list-tile>
+
+        <!-- Sign out link -->
+        <v-list-tile ripple v-if="user">
+          <v-list-tile-action>
+            <v-icon left>exit_to_app</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            Sign out
+          </v-list-tile-content>
+        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
 
@@ -65,7 +75,8 @@
         prepend-icon="search"
         placeholder="Search post"
         single-line
-      ></v-text-field>
+      >
+      </v-text-field>
 
       <v-spacer></v-spacer>
 
@@ -80,6 +91,42 @@
         >
           <v-icon left>{{item.icon}}</v-icon>
           {{item.title}}
+        </v-btn>
+
+        <!-- Porfile link -->
+        <v-btn
+          flat
+          to="/profile"
+          v-if="user"
+        >
+          <v-icon
+            class="hidden-sm-only"
+            left
+          >
+            account_box
+          </v-icon>
+          <v-badge
+            right
+            color="blue darken-2"
+          >
+            <!-- <span slot="badge">1</span> -->
+            Profile
+          </v-badge>
+        </v-btn>
+
+        <!-- Sign out link -->
+        <v-btn
+          flat
+          class="hidden-sm-only"
+          v-if="user"
+        >
+          <v-icon
+            class="hidden-sm-only"
+            left
+          >
+            exit_to_app
+          </v-icon>
+          Sign out
         </v-btn>
       </v-toolbar-items>
     </v-toolbar>
@@ -96,35 +143,55 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
-  name: "App",
+  name: 'App',
   data() {
     return {
       sideNav: false
-    };
+    }
   },
   computed: {
+    ...mapGetters(['user']),
     navItems() {
-      return [
-        { icon: "chat", title: "Post", route: "/post" },
-        { icon: "lock_open", title: "Sign In", route: "/signin" },
-        { icon: "create", title: "Sign Up", route: "/signup" }
-      ];
+      let item = [
+        { icon: 'chat', title: 'Post', route: '/post' },
+        { icon: 'lock_open', title: 'Sign In', route: '/signin' },
+        { icon: 'create', title: 'Sign Up', route: '/signup' }
+      ]
+
+      if (this.user) {
+        item = [
+          { icon: 'chat', title: 'Post', route: '/post' }
+        ]
+      }
+
+      return item
     },
     navItemsSide() {
-      return [
-        { icon: "chat", title: "Post", route: "/post" },
-        { icon: "lock_open", title: "Sign In", route: "/signin" },
-        { icon: "create", title: "Sign Up", route: "/signup" }
-      ];
+      let item =  [
+        { icon: 'chat', title: 'Post', route: '/post' },
+        { icon: 'lock_open', title: 'Sign In', route: '/signin' },
+        { icon: 'create', title: 'Sign Up', route: '/signup' }
+      ]
+
+      if (this.user) {
+        item = [
+          { icon: 'chat', title: 'Post', route: '/post' },
+          { icon: 'stars', title: 'Create Post', route: '/post/add' },
+          { icon: 'account_box', title: 'Profile', route: '/profile' },
+        ]
+      }
+
+      return item
     }
   },
   methods: {
     toggleSideNav() {
-      this.sideNav = !this.sideNav;
+      this.sideNav = !this.sideNav
     }
   }
-};
+}
 </script>
 
 <style scoped>
