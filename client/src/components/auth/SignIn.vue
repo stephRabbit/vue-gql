@@ -18,6 +18,21 @@
       </v-flex>
     </v-layout>
 
+    <!-- Error alert -->
+    <v-layout
+      row
+      wrap
+      v-if="error"
+    >
+      <v-flex
+        xs12
+        sm6
+        offset-sm3
+      >
+        <form-alert :message="error.message"></form-alert>
+      </v-flex>
+    </v-layout>
+
     <!-- Sign in form -->
     <v-layout
       row
@@ -58,7 +73,12 @@
               </v-layout>
               <v-layout>
                 <v-flex xs12>
-                  <v-btn color="accent" type="submit">Sign in</v-btn>
+                  <v-btn :loading="loading" color="accent" type="submit">
+                    <span slot="loader" class="custom-loader">
+                      <v-icon light>cached</v-icon>
+                    </span>
+                    Sign in
+                  </v-btn>
                   <h3>Don't have an account? <router-link to="/signup">Sign up!</router-link></h3>
                 </v-flex>
               </v-layout>
@@ -67,12 +87,12 @@
         </v-card>
       </v-flex>
     </v-layout>
-
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+
 export default {
   name: 'SignIn',
   data() {
@@ -82,7 +102,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters([
+      'user',
+      'error',
+      'loading',
+    ])
   },
   watch: {
     user(value) {
@@ -102,3 +126,41 @@ export default {
   }
 }
 </script>
+<style>
+  .custom-loader {
+    animation: loader 1s infinite;
+    display: flex;
+  }
+  @-moz-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-o-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

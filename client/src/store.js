@@ -10,7 +10,8 @@ export default new Vuex.Store({
   state: {
     posts: [],
     loading: false,
-    user: null
+    user: null,
+    error: null,
   },
   mutations: {
     setPosts: (state, payload) => {
@@ -22,7 +23,11 @@ export default new Vuex.Store({
     setLoading: (state, payload) => {
       state.loading = payload
     },
+    setError: (state, payload) => {
+      state.error = payload
+    },
     clearUser: (state) => (state.user = null),
+    clearError: (state) => (state.error = null),
   },
   actions: {
     getCurrentUser: ({ commit }) => {
@@ -62,6 +67,8 @@ export default new Vuex.Store({
         })
     },
     signInUser: ({ commit }, payload) => {
+      commit('clearError')
+      commit('setLoading', true)
       // Set token to as empty to clear malformed token
       localStorage.setItem('token', '')
 
@@ -72,12 +79,15 @@ export default new Vuex.Store({
         })
         .then(({ data }) => {
           console.log(data)
+          commit('setLoading', false)
           localStorage.setItem('token', data.signInUser.token)
           // To make sure created method is run in main.js (run getCurrentUser), reload page
           router.go()
         })
         .catch(err => {
           console.error(err)
+          commit('setLoading', false)
+          commit('setError', err)
         })
     },
     signOutUser: async ({ commit }) => {
@@ -95,6 +105,7 @@ export default new Vuex.Store({
   getters: {
     posts: state => state.posts,
     loading: state => state.loading,
-    user: state => state.user
+    user: state => state.user,
+    error: state => state.error,
   }
 })
