@@ -48,7 +48,12 @@
           dark
         >
           <v-container>
-            <v-form @submit.prevent="handleSignInUser">
+            <v-form
+              lazy-validation
+              ref="form"
+              @submit.prevent="handleSignInUser"
+              v-model="isFormValid"
+            >
               <v-layout>
                 <v-flex xs12>
                   <v-text-field
@@ -56,6 +61,7 @@
                     label="Username"
                     type="text"
                     v-model="username"
+                    :rules="usernameRules"
                   >
                   </v-text-field>
                 </v-flex>
@@ -67,13 +73,19 @@
                     label="Password"
                     type="password"
                     v-model="password"
+                    :rules="passwordRules"
                   >
                   </v-text-field>
                 </v-flex>
               </v-layout>
               <v-layout>
                 <v-flex xs12>
-                  <v-btn :loading="loading" color="accent" type="submit">
+                  <v-btn
+                    color="accent"
+                    type="submit"
+                    :loading="loading"
+                    :disabled="!isFormValid"
+                  >
                     <span slot="loader" class="custom-loader">
                       <v-icon light>cached</v-icon>
                     </span>
@@ -97,8 +109,21 @@ export default {
   name: 'SignIn',
   data() {
     return {
+      isFormValid: true,
       username: '',
       password: '',
+      usernameRules: [
+        // Check if username is true
+        username => !!username || 'Username is required',
+        // Username less then 10 characters
+        username => username.length < 10 || 'Username must be less than 10 characters',
+      ],
+      passwordRules: [
+        // Check if password is true
+        password => !!password || 'Password is required',
+        // Password length larger than 3
+        password => password.length >= 4 || 'Password must be 4 characters or more',
+      ]
     }
   },
   computed: {
@@ -118,10 +143,12 @@ export default {
   },
   methods: {
     handleSignInUser() {
-      this.$store.dispatch('signInUser', {
-        username: this.username,
-        password: this.password,
-      })
+      if (this.$refs.form.validate()) {
+        this.$store.dispatch('signInUser', {
+          username: this.username,
+          password: this.password,
+        })
+      }
     }
   }
 }
