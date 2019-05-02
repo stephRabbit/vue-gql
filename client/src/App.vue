@@ -143,7 +143,7 @@
           <router-view />
         </transition>
 
-        <!-- Auth SnackBar -->
+        <!-- Auth Success SnackBar -->
         <v-snackbar
           bottom
           left
@@ -161,6 +161,26 @@
             Close
           </v-btn>
         </v-snackbar>
+
+        <!-- Auth Error SnackBar -->
+        <v-snackbar
+          bottom
+          left
+          color="warning"
+          :timeout="5000"
+          v-model="authErrorSnackbar"
+          v-if="authError"
+        >
+          <v-icon class="mr-3">cancel</v-icon>
+          <h3>{{authError.message}}</h3>
+          <v-btn
+            dark
+            flat
+            to="/signin"
+          >
+            Sign In
+          </v-btn>
+        </v-snackbar>
       </v-container>
     </main>
   </v-app>
@@ -174,10 +194,11 @@ export default {
     return {
       sideNav: false,
       authSnackbar: false,
+      authErrorSnackbar: false,
     }
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['authError', 'user']),
     navItems() {
       let item = [
         { icon: 'chat', title: 'Post', route: '/post' },
@@ -215,6 +236,11 @@ export default {
     user(newValue, oldValue) {
       if (oldValue === null) {
         this.authSnackbar = true
+      }
+    },
+    authError(value) {
+      if (value !== null) {
+        this.authErrorSnackbar = true
       }
     }
   },

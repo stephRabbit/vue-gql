@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import { defaultClient as apolloClient } from './main'
-import { GET_CURRENT_USER, GET_POSTS, SIGN_IN_USER } from './queries'
+import { GET_CURRENT_USER, GET_POSTS, SIGN_IN_USER, SIGN_UP_USER } from './queries'
 
 Vue.use(Vuex)
 
@@ -12,6 +12,7 @@ export default new Vuex.Store({
     loading: false,
     user: null,
     error: null,
+    authError: null,
   },
   mutations: {
     setPosts: (state, payload) => {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
     },
     setError: (state, payload) => {
       state.error = payload
+    },
+    setAuthError: (state, payload) => {
+      state.authError = payload
     },
     clearUser: (state) => (state.user = null),
     clearError: (state) => (state.error = null),
@@ -45,6 +49,7 @@ export default new Vuex.Store({
         .catch(err => {
           commit('setLoading', false)
           console.error(err)
+          console.log('[Catch][GET_CURRENT_USER]')
         })
     },
     getPosts: ({ commit }) => {
@@ -69,9 +74,6 @@ export default new Vuex.Store({
     signInUser: ({ commit }, payload) => {
       commit('clearError')
       commit('setLoading', true)
-      // Set token to as empty to clear malformed token
-      localStorage.setItem('token', '')
-
       apolloClient
         .mutate({
           mutation: SIGN_IN_USER,
@@ -82,6 +84,26 @@ export default new Vuex.Store({
           commit('setLoading', false)
           localStorage.setItem('token', data.signInUser.token)
           // To make sure created method is run in main.js (run getCurrentUser), reload page
+          router.go()
+        })
+        .catch(err => {
+          console.error(err)
+          commit('setLoading', false)
+          commit('setError', err)
+        })
+    },
+    signUpUser: async ({ commit }, payload) => {
+      commit('clearError')
+      commit('setLoading', true)
+      apolloClient
+        .mutate({
+          mutation: SIGN_UP_USER,
+          variables: payload
+        })
+        .then(({ data }) => {
+          console.log(data)
+          commit('setLoading', false)
+          localStorage.setItem('token', data.signUpUser.token)
           router.go()
         })
         .catch(err => {
@@ -107,5 +129,6 @@ export default new Vuex.Store({
     loading: state => state.loading,
     user: state => state.user,
     error: state => state.error,
+    authError: state => state.authError,
   }
 })

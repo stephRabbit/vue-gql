@@ -84,7 +84,7 @@
                     color="accent"
                     type="submit"
                     :loading="loading"
-                    :disabled="!isFormValid"
+                    :disabled="!isFormValid || loading"
                   >
                     <span slot="loader" class="custom-loader">
                       <v-icon light>cached</v-icon>
@@ -113,15 +113,11 @@ export default {
       username: '',
       password: '',
       usernameRules: [
-        // Check if username is true
         username => !!username || 'Username is required',
-        // Username less then 10 characters
         username => username.length < 10 || 'Username must be less than 10 characters',
       ],
       passwordRules: [
-        // Check if password is true
         password => !!password || 'Password is required',
-        // Password length larger than 3
         password => password.length >= 4 || 'Password must be 4 characters or more',
       ]
     }
