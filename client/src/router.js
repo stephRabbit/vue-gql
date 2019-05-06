@@ -17,33 +17,34 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
     },
     {
       path: '/post',
       name: 'Post',
-      component: Post
+      component: Post,
     },
     {
       path: '/post/add',
       name: 'AddPost',
-      component: AddPost
+      component: AddPost,
+      beforeEnter: ProtectedRoutes,
     },
     {
       path: '/profile',
       name: 'Profile',
       component: Profile,
-      beforeEnter: ProtectedRoutes
+      beforeEnter: ProtectedRoutes,
     },
     {
       path: '/signin',
       name: 'SignIn',
-      component: SignIn
+      component: SignIn,
     },
     {
       path: '/signup',
       name: 'SignUp',
-      component: SignUp
+      component: SignUp,
     },
   ]
 })

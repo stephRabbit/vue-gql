@@ -2,7 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import { defaultClient as apolloClient } from './main'
-import { GET_CURRENT_USER, GET_POSTS, SIGN_IN_USER, SIGN_UP_USER } from './queries'
+import {
+  GET_CURRENT_USER,
+  GET_POSTS,
+  SIGN_IN_USER,
+  SIGN_UP_USER,
+  ADD_POST
+} from './queries'
 
 Vue.use(Vuex)
 
@@ -12,7 +18,7 @@ export default new Vuex.Store({
     loading: false,
     user: null,
     error: null,
-    authError: null,
+    authError: null
   },
   mutations: {
     setPosts: (state, payload) => {
@@ -30,8 +36,8 @@ export default new Vuex.Store({
     setAuthError: (state, payload) => {
       state.authError = payload
     },
-    clearUser: (state) => (state.user = null),
-    clearError: (state) => (state.error = null),
+    clearUser: state => (state.user = null),
+    clearError: state => (state.error = null)
   },
   actions: {
     getCurrentUser: ({ commit }) => {
@@ -69,6 +75,44 @@ export default new Vuex.Store({
         .catch(err => {
           commit('setLoading', false)
           console.error(err)
+        })
+    },
+    addPost: ({ commit }, payload) => {
+      commit('setLoading', true)
+      apolloClient
+        .mutate({
+          mutation: ADD_POST,
+          variables: payload,
+          update: (cache, { data: { addPost } }) => {
+            // Read root query to get the update (addPost)
+            const data = cache.readQuery({ query: GET_POSTS })
+            // Create updated data - add the new post to the begining of GET_POSTS
+            data.getPosts.unshift(addPost)
+            // Write update back to query
+            console.log(data)
+            cache.writeQuery({
+              query: GET_POSTS,
+              data
+            })
+          },
+          // Ensures that data is added immediately as specified for the update
+          optimisticResponse: {
+            __typename: 'Mutation',
+            addPost: {
+              __typename: 'Post',
+              _id: -1,
+              ...payload,
+            }
+          }
+        })
+        .then(({ data }) => {
+          commit('setLoading', false)
+          console.log(data.addPost)
+        })
+        .catch(err => {
+          console.error(err)
+          commit('setLoading', false)
+          commit('setError', err)
         })
     },
     signInUser: ({ commit }, payload) => {
@@ -122,13 +166,13 @@ export default new Vuex.Store({
       await apolloClient.resetStore()
       // Redirect to landing page
       router.push('/')
-    },
+    }
   },
   getters: {
     posts: state => state.posts,
     loading: state => state.loading,
     user: state => state.user,
     error: state => state.error,
-    authError: state => state.authError,
+    authError: state => state.authError
   }
 })

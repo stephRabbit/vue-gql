@@ -59,7 +59,7 @@
                   <v-text-field
                     prepend-icon="face"
                     label="Username"
-                    type="email"
+                    type="text"
                     v-model="username"
                     :rules="usernameRules"
                   >
@@ -71,7 +71,7 @@
                   <v-text-field
                     prepend-icon="email"
                     label="Email"
-                    type="text"
+                    type="email"
                     v-model="email"
                     :rules="emailRules"
                   >

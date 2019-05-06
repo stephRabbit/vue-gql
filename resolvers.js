@@ -20,22 +20,58 @@ module.exports = {
         return null
       }
 
-      const user = await User.findOne({ username: currentUser.username }).populate({
+      const user = await User.findOne({
+        username: currentUser.username
+      }).populate({
         path: 'favorites',
         model: 'Post'
       })
 
       return user
     },
+
     getPosts: async (_, agrs, { Post }, info) => {
       const post = await Post.find({})
         .sort({ createdDate: 'desc' })
-        .populate({ // turn objectID from createdBy: { ..., ref: "User" } and convert to User object
+        .populate({
+          // turn objectID from createdBy: { ..., ref: "User" } and convert to User object
           path: 'createdBy',
           model: 'User'
         })
 
       return post
+    },
+
+    infiniteScrollPosts: async (_, { pageNum, pageSize }, { Post }, info) => {
+      let posts
+
+      if (pageNum === 1) {
+        posts = await Post.find({})
+          .sort({ createdDate: 'desc' })
+          .populate({
+            path: 'createdBy',
+            model: 'User'
+          })
+          .limit(pageSize)
+      } else {
+        const skip = pageSize * (pageNum - 1)
+        posts = await Post.find({})
+          .sort({ createdDate: 'desc' })
+          .populate({
+            path: 'createdBy',
+            model: 'User'
+          })
+          .skip(skip)
+          .limit(pageSize)
+      }
+
+      const totalDocs = await Post.countDocuments()
+      const hasMore = totalDocs > pageSize * pageNum
+
+      return {
+        posts,
+        hasMore
+      }
     }
   },
 
@@ -106,6 +142,6 @@ module.exports = {
       } catch (err) {
         throw new Error(`Error: ${err}`)
       }
-    },
+    }
   }
 }
