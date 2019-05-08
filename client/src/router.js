@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import ProtectedRoutes from './ProtectedRoutes'
 import Home from './components/Home.vue'
 import AddPost from './components/posts/AddPost.vue'
+import Posts from './components/posts/Posts.vue'
 import Post from './components/posts/Post.vue'
 import Profile from './components/auth/Profile.vue'
 import SignIn from './components/auth/SignIn.vue'
@@ -20,9 +21,15 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/post',
+      path: '/posts',
+      name: 'Posts',
+      component: Posts,
+    },
+    {
+      path: '/posts/:postId',
       name: 'Post',
       component: Post,
+      props: true,
     },
     {
       path: '/post/add',

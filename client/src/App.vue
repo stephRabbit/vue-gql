@@ -201,14 +201,14 @@ export default {
     ...mapGetters(['authError', 'user']),
     navItems() {
       let item = [
-        { icon: 'chat', title: 'Post', route: '/post' },
+        { icon: 'chat', title: 'Posts', route: '/posts' },
         { icon: 'lock_open', title: 'Sign In', route: '/signin' },
         { icon: 'create', title: 'Sign Up', route: '/signup' }
       ]
 
       if (this.user) {
         item = [
-          { icon: 'chat', title: 'Post', route: '/post' }
+          { icon: 'chat', title: 'Posts', route: '/posts' }
         ]
       }
 
@@ -216,14 +216,14 @@ export default {
     },
     navItemsSide() {
       let item =  [
-        { icon: 'chat', title: 'Post', route: '/post' },
+        { icon: 'chat', title: 'Posts', route: '/posts' },
         { icon: 'lock_open', title: 'Sign In', route: '/signin' },
         { icon: 'create', title: 'Sign Up', route: '/signup' }
       ]
 
       if (this.user) {
         item = [
-          { icon: 'chat', title: 'Post', route: '/post' },
+          { icon: 'chat', title: 'Posts', route: '/posts' },
           { icon: 'stars', title: 'Create Post', route: '/post/add' },
           { icon: 'account_box', title: 'Profile', route: '/profile' },
         ]

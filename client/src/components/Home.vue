@@ -17,8 +17,12 @@
     </v-layout>
 
     <v-flex xs12>
-      <v-carousel v-if="!loading && posts.length > 0" v-bind="{'cycle': false}">
+      <v-carousel
+        v-if="!loading && posts.length > 0"
+        v-bind="{'cycle': false}"
+      >
         <v-carousel-item
+          @click.native="gotToPost(post._id)"
           v-for="post in posts"
           :key="post._id"
           :src="post.imageUrl"
@@ -42,6 +46,9 @@ export default {
     handleGetCarouselPost() {
       // Reach out to Vuex store, fire action that gets posts for carsousel
       this.$store.dispatch('getPosts')
+    },
+    gotToPost(postId) {
+      this.$router.push(`/posts/${postId}`)
     }
   },
   computed: {

@@ -42,6 +42,14 @@ module.exports = {
       return post
     },
 
+    getPost: async (_, { postId }, { Post }, info) => {
+      const post = await Post.findOne({ _id: postId }).populate({
+        path: 'messages.messageUser',
+        model: 'User'
+      })
+      return post
+    },
+
     infiniteScrollPosts: async (_, { pageNum, pageSize }, { Post }, info) => {
       let posts
 

@@ -1,143 +1,112 @@
 <template>
-  <!-- <v-container text-xs-center v-if="infiniteScrollPosts">
-    <div
-      v-for="post in infiniteScrollPosts.posts"
-      :key="post._id"
-    >
-      <img :src="post.imageUrl" height="100">
-      <h3>{{post.title}}</h3>
-    </div>
-    <v-btn
-      @click="showMorePosts"
-      v-if="showMoreEnabled"
-    >
-      Load More
-    </v-btn>
-  </v-container> -->
-  <v-container grid-list-xl fluid>
-    <v-layout row wrap v-if="infiniteScrollPosts">
-      <v-flex
-        v-for="post in infiniteScrollPosts.posts"
-        :key="post._id"
-      >
-        <v-card hover>
-          <v-img :src="post.imageUrl" height="30vh" lazy></v-img>
-          <v-card-actions>
-            <v-card-title primary>
-              <div>
-                <div class="headline">{{post.title}}</div>
-                <span class="gray--text">{{post.likes}} likes - {{post.messages.length}} comments</span>
-              </div>
-            </v-card-title>
-            <v-spacer></v-spacer>
-            <v-btn
-              icon
-              @click="showPostCreator = !showPostCreator"
-            >
-              <v-icon>{{`keyboard_arrow_${showPostCreator ? 'up': 'down'}`}}</v-icon>
-            </v-btn>
-          </v-card-actions>
-
-          <!-- Post Creator Title -->
-          <v-slide-y-transition>
-            <v-card-text
-              class="grey lighten-4"
-              v-show="showPostCreator"
-            >
-              <v-list-tile avatar>
-                <v-list-tile-avatar>
-                  <img :src="post.createdBy.avatar">
-                </v-list-tile-avatar>
-
-                <v-list-tile-content>
-                  <v-list-tile-title class="text--primary">{{post.createdBy.username}}</v-list-tile-title>
-                  <v-list-tile-sub-title class="font-weight-thin">Added {{post.createdDate}}</v-list-tile-sub-title>
-                </v-list-tile-content>
-
-                <v-list-tile-action>
-                  <v-btn icon>
-                    <v-icon color="grey lighten-1">info</v-icon>
-                  </v-btn>
-                </v-list-tile-action>
-              </v-list-tile>
-            </v-card-text>
-          </v-slide-y-transition>
-        </v-card>
-      </v-flex>
-    </v-layout>
-
-    <!-- Load More Button -->
-    <v-layout column v-if="showMoreEnabled">
+  <v-container
+    v-if="getPost"
+    class="mt-3"
+    flex
+    center
+  >
+    <v-layout row wrap>
       <v-flex xs12>
-        <v-layout justify-center row>
-          <v-btn
-            color="info"
-            @click="showMorePosts"
-            v-if="showMoreEnabled"
-          >
-            Load More
-          </v-btn>
-        </v-layout>
+        <v-card hover>
+          <v-card-title>
+            <h1>{{getPost.title}}</h1>
+            <v-btn large icon v-if="user">
+              <v-icon large color="grey">favorites</v-icon>
+            </v-btn>
+            <h3 class="ml-3 font-weight-thin">{{getPost.likes}} LIKES</h3>
+            <v-spacer></v-spacer>
+            <v-icon
+              color="info"
+              large
+              @click="goToPrevPage"
+            >
+              arrow_back
+            </v-icon>
+          </v-card-title>
+          <v-tooltip right>
+            <span>Click to enlarge image</span>
+            <v-img
+              id="post__image"
+              slot="activator"
+              @click="toggleImageDialog"
+              :src="getPost.imageUrl"
+            >
+            </v-img>
+          </v-tooltip>
+
+          <!-- Post Image Dialog -->
+          <v-dialog v-model="dialog">
+            <v-card>
+              <v-img
+                :src="getPost.imageUrl"
+                height="80vh"
+              >
+              </v-img>
+            </v-card>
+          </v-dialog>
+
+          <v-card-text>
+            <span
+              v-for="(category, index) in getPost.categories"
+              :key="index"
+            >
+              <v-chip
+                class="mb-3"
+                color="accent"
+                text-color="white"
+              >
+                {{category}}
+              </v-chip>
+            </span>
+            <h3>{{getPost.description}}</h3>
+          </v-card-text>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-import { INFINITE_SCROLL_POSTS } from '../../queries.js'
-
-const pageSize = 2
+import { mapGetters } from 'vuex'
+import { GET_POST } from '../../queries.js'
 
 export default {
   name: 'Post',
   data() {
     return {
-      pageNum: 1,
-      showMoreEnabled: true,
-      showPostCreator: false,
+      dialog: false,
     }
   },
   apollo: {
-    infiniteScrollPosts: {
-      query: INFINITE_SCROLL_POSTS,
-      variables: {
-        pageNum: 1,
-        pageSize,
+    getPost: {
+      query: GET_POST,
+      variables() {
+        return {
+          postId: this.postId,
+        }
       }
     }
   },
+  computed: {
+    ...mapGetters(['user']),
+  },
   methods: {
-    showMorePosts() {
-      this.pageNum += 1
-      // Fetch more data and transform the original result
-      this.$apollo.queries.infiniteScrollPosts.fetchMore({
-        variables: {
-          // Incrementing pageNum by 1
-          pageNum: this.pageNum,
-          pageSize,
-        },
-        updateQuery: (prevResult, { fetchMoreResult }) => {
-          console.log('prevResult', prevResult.infiniteScrollPosts.posts)
-          console.log('fetchMoreResult', fetchMoreResult)
-
-          const newPosts = fetchMoreResult.infiniteScrollPosts.posts
-          const hasMore = fetchMoreResult.infiniteScrollPosts.hasMore
-          this.showMoreEnabled = hasMore
-
-          return {
-            infiniteScrollPosts: {
-              __typename: prevResult.infiniteScrollPosts.__typename,
-              // Merge previous posts with new posts
-              posts: [
-                ...prevResult.infiniteScrollPosts.posts,
-                ...newPosts,
-              ],
-              hasMore,
-            }
-          }
-        },
-      })
-    }
-  }
+    goToPrevPage() {
+      // -1 back to prev page
+      this.$router.go(-1)
+    },
+    toggleImageDialog() {
+      if (window.innerWidth > 500) {
+        this.dialog = !this.dialog
+      }
+    },
+  },
+  props: ['postId'],
 }
 </script>
+
+<style scoped>
+  #post__image {
+    height: 400px
+  }
+</style>
