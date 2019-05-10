@@ -112,6 +112,27 @@ module.exports = {
       }
     },
 
+    addPostMessage: async (_, { messageBody, userId, postId }, { Post }, info) => {
+      const newMessage = {
+        messageBody,
+        messageUser: userId,
+      }
+
+      const post = await Post.findOneAndUpdate(
+        { _id: postId },
+        // Prepend messages to beginning message array
+        { $push: { messages: { $each: [newMessage], $position: 0 } } },
+        // Return fresh doument after update
+        { new: true }
+      ).populate({
+        path: 'messages.messageUser',
+        model: 'User'
+      })
+
+      // Return first message
+      return post.messages[0]
+    },
+
     signInUser: async (_, { username, password }, { User }, info) => {
       try {
         const user = await User.findOne({ username })

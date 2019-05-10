@@ -11,17 +11,11 @@
           <v-card-title>
             <h1>{{getPost.title}}</h1>
             <v-btn large icon v-if="user">
-              <v-icon large color="grey">favorites</v-icon>
+              <v-icon large color="grey">favorite</v-icon>
             </v-btn>
             <h3 class="ml-3 font-weight-thin">{{getPost.likes}} LIKES</h3>
             <v-spacer></v-spacer>
-            <v-icon
-              color="info"
-              large
-              @click="goToPrevPage"
-            >
-              arrow_back
-            </v-icon>
+            <v-icon @click="goToPrevPage" color="info" large>arrow_back</v-icon>
           </v-card-title>
           <v-tooltip right>
             <span>Click to enlarge image</span>
@@ -63,20 +57,93 @@
         </v-card>
       </v-flex>
     </v-layout>
+
+    <!-- Messages Sections -->
+    <div class="mt-5">
+      <!-- Messsage Input -->
+      <v-layout class="mb-3" v-if="user">
+        <v-flex xs12>
+          <v-form
+            lazy-validation
+            ref="form"
+            v-model="isFormValid"
+            @submit.prevent="handleAddPostMessage"
+          >
+            <v-layout row>
+              <v-flex xs12>
+                <v-text-field
+                  clearable
+                  required
+                  label="Add Message"
+                  type="text"
+                  prepend-icon="email"
+                  v-model="messageBody"
+                  :rules="messageRules"
+                  :append-outer-icon="messageBody && 'send'"
+                  @click:append-outer="handleAddPostMessage"
+                >
+                </v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-form>
+        </v-flex>
+      </v-layout>
+
+      <!-- Messages -->
+      <v-layout row wrap>
+        <v-flex xs12>
+          <v-list subheader two-line>
+            <v-subheader>Messages ({{getPost.messages.length}})</v-subheader>
+
+            <template v-for="message in getPost.messages">
+              <v-divider :key="message._id"></v-divider>
+
+              <v-list-tile avatar inset :key="message.title">
+                <v-list-tile-avatar>
+                  <img :src="message.messageUser.avatar">
+                </v-list-tile-avatar>
+
+                <v-list-tile-content>
+                  <v-list-tile-title>
+                    {{message.messageBody}}
+                  </v-list-tile-title>
+                  <v-list-tile-sub-title>
+                    {{message.messageUser.username}}
+                    <span class="grey--text text--lighten-1 hidden-xs-only">{{message.messageDate}}</span>
+                  </v-list-tile-sub-title>
+                </v-list-tile-content>
+
+                <v-list-tile-action class='hidden-xs-only'>
+                  <v-icon :color="checkIfOwnerMessage(message) ? 'accent' : 'grey'">chat_bubble</v-icon>
+                </v-list-tile-action>
+
+              </v-list-tile>
+            </template>
+          </v-list>
+        </v-flex>
+      </v-layout>
+    </div>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import { GET_POST } from '../../queries.js'
+import { GET_POST, ADD_POST_MESSAGE } from '../../queries.js'
 
 export default {
   name: 'Post',
   data() {
     return {
       dialog: false,
+      messageBody: '',
+      isFormValid: true,
+      messageRules: [
+        message => !!message || 'Message is required',
+        message => message.length <= 150  || 'Message must be less than 150 characters',
+      ],
     }
   },
+  props: ['postId'],
   apollo: {
     getPost: {
       query: GET_POST,
@@ -88,7 +155,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user'])
   },
   methods: {
     goToPrevPage() {
@@ -100,8 +167,46 @@ export default {
         this.dialog = !this.dialog
       }
     },
+    handleAddPostMessage() {
+      if (this.$refs.form.validate()) {
+        const variables = {
+          messageBody: this.messageBody,
+          postId: this.postId,
+          userId: this.user._id,
+        }
+
+        this.$apollo.mutate({
+          mutation: ADD_POST_MESSAGE,
+          variables,
+          /**
+           * cache - Previous results
+           * data { addPostMessage } - query in which new data exist
+           */
+          update:  (cache, { data: { addPostMessage } }) => {
+            const data = cache.readQuery({
+              query: GET_POST,
+              variables: { postId: this.postId }
+            })
+
+            // console.log('cacheData', data)
+            // console.log('newData', addPostMessage)
+            data.getPost.messages.unshift(addPostMessage)
+            cache.writeQuery({
+              query: GET_POST,
+              variables: { postId: this.postId },
+              data,
+            })
+          }
+        }).then(({ data }) => {
+          console.log(data)
+          this.$refs.form.reset()
+        }).catch(err => console.log(err))
+      }
+    },
+    checkIfOwnerMessage(message) {
+      return this.user && this.user._id === message.messageUser._id
+    },
   },
-  props: ['postId'],
 }
 </script>
 
