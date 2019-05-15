@@ -34,6 +34,12 @@ type PostPage {
   hasMore: Boolean
 }
 
+# likes for Posts / Favourites are for users
+type LikesFavs {
+  likes: Int
+  favorites: [Post]
+}
+
 type Token {
   token: String!
 }
@@ -54,6 +60,8 @@ type Mutation {
     creatorId: ID!
   ): Post!
   addPostMessage(messageBody: String!, userId: ID!, postId: ID!): Message!
+  likePost(postId: ID!, username: String!): LikesFavs!
+  unlikePost(postId: ID!, username: String!): LikesFavs!
   signInUser(username: String!, password: String!): Token
   signUpUser(username: String!, email: String!, password: String!): Token
 }

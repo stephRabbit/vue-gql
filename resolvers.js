@@ -133,6 +133,62 @@ module.exports = {
       return post.messages[0]
     },
 
+    likePost: async (_, { postId, username }, { Post, User }, info) => {
+      // Find Post, add 1 to the like value
+      const post = await Post.findOneAndUpdate(
+        { _id: postId },
+        // Prepend messages to beginning message array
+        { $inc: { 'likes' : 1 } },
+        // Return fresh document after update
+        { new: true }
+      )
+
+      // Find user by username and add ID of post to it's favorites array (and populate with Post)
+      const user = await User.findOneAndUpdate(
+        { username },
+        // Update favorites array
+        { $addToSet: { favorites: postId } },
+        { new: true }
+      ).populate({
+        path: 'favorites',
+        model: 'Post'
+      })
+
+      // Return likes form 'post' and favorites from 'user'
+      return {
+        likes: post.likes,
+        favorites: user.favorites,
+      }
+    },
+
+    unlikePost: async (_, { postId, username }, { Post, User }, info) => {
+      // Find Post, add 1 to the like value
+      const post = await Post.findOneAndUpdate(
+        { _id: postId },
+        // Prepend messages to beginning message array
+        { $inc: { 'likes' : -1 } },
+        // Return fresh document after update
+        { new: true }
+      )
+
+      // Find user by username and add ID of post to it's favorites array (and populate with Post)
+      const user = await User.findOneAndUpdate(
+        { username },
+        // Update favorites array
+        { $pull: { favorites: postId } },
+        { new: true }
+      ).populate({
+        path: 'favorites',
+        model: 'Post'
+      })
+
+      // Return likes form 'post' and favorites from 'user'
+      return {
+        likes: post.likes,
+        favorites: user.favorites,
+      }
+    },
+
     signInUser: async (_, { username, password }, { User }, info) => {
       try {
         const user = await User.findOne({ username })
