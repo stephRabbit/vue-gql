@@ -50,6 +50,25 @@ module.exports = {
       return post
     },
 
+    searchPosts: async (_, { searchTerm }, { Post }, info) => {
+      if (searchTerm) {
+        const searchResults = await Post.find(
+          // Performing text search for search value 'searcTerm'
+          { $text: { $search: searchTerm } },
+          // Assign 'searchTerm' a text score to get best match
+          { score: { $meta: 'textScore' } }
+          // Sort by 'textScore' and 'likes(descending)'
+        )
+          .sort({
+            score: { $meta: 'textScore' },
+            likes: 'desc'
+          })
+          .limit(5)
+
+        return searchResults
+      }
+    },
+
     infiniteScrollPosts: async (_, { pageNum, pageSize }, { Post }, info) => {
       let posts
 
@@ -112,10 +131,15 @@ module.exports = {
       }
     },
 
-    addPostMessage: async (_, { messageBody, userId, postId }, { Post }, info) => {
+    addPostMessage: async (
+      _,
+      { messageBody, userId, postId },
+      { Post },
+      info
+    ) => {
       const newMessage = {
         messageBody,
-        messageUser: userId,
+        messageUser: userId
       }
 
       const post = await Post.findOneAndUpdate(
@@ -138,7 +162,7 @@ module.exports = {
       const post = await Post.findOneAndUpdate(
         { _id: postId },
         // Prepend messages to beginning message array
-        { $inc: { 'likes' : 1 } },
+        { $inc: { likes: 1 } },
         // Return fresh document after update
         { new: true }
       )
@@ -157,7 +181,7 @@ module.exports = {
       // Return likes form 'post' and favorites from 'user'
       return {
         likes: post.likes,
-        favorites: user.favorites,
+        favorites: user.favorites
       }
     },
 
@@ -166,7 +190,7 @@ module.exports = {
       const post = await Post.findOneAndUpdate(
         { _id: postId },
         // Prepend messages to beginning message array
-        { $inc: { 'likes' : -1 } },
+        { $inc: { likes: -1 } },
         // Return fresh document after update
         { new: true }
       )
@@ -185,7 +209,7 @@ module.exports = {
       // Return likes form 'post' and favorites from 'user'
       return {
         likes: post.likes,
-        favorites: user.favorites,
+        favorites: user.favorites
       }
     },
 

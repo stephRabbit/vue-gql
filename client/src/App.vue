@@ -76,11 +76,38 @@
       <!-- Search input -->
       <v-text-field
         flex
+        color="secondary"
         prepend-icon="search"
         placeholder="Search post"
         single-line
+        v-model="searchTerm"
+        @input="handleSearchPosts"
       >
       </v-text-field>
+
+      <!-- Search Results Card -->
+      <v-card
+        dark
+        v-if="searchResults.length"
+        id="search__card"
+      >
+        <v-list>
+          <v-list-tile
+            @click="goToSearchResult(result._id)"
+            v-for="result in searchResults"
+            :key="result._id"
+          >
+            <v-list-tile-title>
+              {{result.title}} -
+              <span class="font-weight-thin">{{formatDescription(result.description)}}</span>
+            </v-list-tile-title>
+
+            <v-list-tile-action v-if="checkIfUserFavorite(result._id)">
+              <v-icon>favorite</v-icon>
+            </v-list-tile-action>
+          </v-list-tile>
+        </v-list>
+      </v-card>
 
       <v-spacer></v-spacer>
 
@@ -112,8 +139,9 @@
           <v-badge
             right
             color="blue darken-2"
+            :class="{'bounce':badgeAnimated}"
           >
-            <!-- <span slot="badge">1</span> -->
+            <span v-if="userFavorites.length" slot="badge">{{userFavorites.length}}</span>
             Profile
           </v-badge>
         </v-btn>
@@ -192,13 +220,20 @@ export default {
   name: 'App',
   data() {
     return {
+      badgeAnimated: false,
       sideNav: false,
       authSnackbar: false,
       authErrorSnackbar: false,
+      searchTerm: '',
     }
   },
   computed: {
-    ...mapGetters(['authError', 'user']),
+    ...mapGetters([
+      'authError',
+      'user',
+      'userFavorites',
+      'searchResults',
+    ]),
     navItems() {
       let item = [
         { icon: 'chat', title: 'Posts', route: '/posts' },
@@ -242,6 +277,13 @@ export default {
       if (value !== null) {
         this.authErrorSnackbar = true
       }
+    },
+    userFavorites(value) {
+      // If user value changes
+      if (value) {
+        this.badgeAnimated = true
+        setTimeout(() => {this.badgeAnimated = false}, 1000)
+      }
     }
   },
   methods: {
@@ -250,12 +292,37 @@ export default {
     },
     handleSignOutUser() {
       this.$store.dispatch('signOutUser')
-    }
+    },
+    handleSearchPosts() {
+      this.$store.dispatch('searchPosts', { searchTerm: this.searchTerm })
+    },
+    goToSearchResult(resultId) {
+      // Clear searchTerm
+      this.searchTerm = ''
+      // Route user to post === resultId
+      this.$router.push(`/posts/${resultId}`)
+      // Clear state
+      this.$store.commit('clearSearchResults')
+    },
+    formatDescription(description) {
+      return description.length > 30 ? `${description.slice(0, 30)} ...` : description
+    },
+    checkIfUserFavorite(resultId) {
+      return this.userFavorites && this.userFavorites.some(fav => fav._id === resultId)
+    },
   }
 }
 </script>
 
 <style scoped>
+  #search__card {
+    position: absolute;
+    width: 100vw;
+    top: 100%;
+    left: 0;
+    z-index: 8;
+  }
+
   .fade-enter-active,
   .fade-leave-active {
     /* transition-property: all; */
@@ -271,6 +338,25 @@ export default {
   .fade-leave-active {
     opacity: 0;
     /* transform: translateX(-25px) */
+  }
+
+  .bounce {
+    animation: bounce 1s both;
+  }
+
+  @keyframes bounce {
+    0%, 20%, 53%, 100% {
+      transform: translate3d(0, 0, 0);
+    }
+    40%, 43% {
+      transform: translate3d(0, -50%, 0);
+    }
+    70% {
+      transform: translate3d(0, -10%, 0);
+    }
+    90% {
+      transform: translate3d(0, -4%, 0);
+    }
   }
 </style>
 

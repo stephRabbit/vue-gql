@@ -54,6 +54,18 @@ export const GET_CURRENT_USER = gql`
   }
 `
 
+export const SEARCH_POSTS = gql`
+  query($searchTerm: String) {
+    searchPosts(searchTerm: $searchTerm) {
+      _id
+      imageUrl
+      title
+      description
+      likes
+    }
+  }
+`
+
 export const INFINITE_SCROLL_POSTS = gql`
   query($pageNum: Int!, $pageSize: Int!) {
     infiniteScrollPosts(pageNum: $pageNum, pageSize: $pageSize) {
