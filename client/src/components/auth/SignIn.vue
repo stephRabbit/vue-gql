@@ -4,7 +4,8 @@
     mt-5
     pt-5
   >
-    <!-- Page title -->
+
+    <!-- Signin Title -->
     <v-layout
       row
       wrap
@@ -14,15 +15,15 @@
         sm6
         offset-sm3
       >
-        <h1>Welcome back</h1>
+        <h1>Welcome Back!</h1>
       </v-flex>
     </v-layout>
 
-    <!-- Error alert -->
+    <!-- Error Alert -->
     <v-layout
+      v-if="error"
       row
       wrap
-      v-if="error"
     >
       <v-flex
         xs12
@@ -33,7 +34,7 @@
       </v-flex>
     </v-layout>
 
-    <!-- Sign in form -->
+    <!-- Signin Form -->
     <v-layout
       row
       wrap
@@ -49,56 +50,65 @@
         >
           <v-container>
             <v-form
+              v-model="isFormValid"
               lazy-validation
               ref="form"
-              @submit.prevent="handleSignInUser"
-              v-model="isFormValid"
+              @submit.prevent="handleSigninUser"
             >
-              <v-layout>
+
+              <v-layout row>
                 <v-flex xs12>
                   <v-text-field
+                    :rules="usernameRules"
+                    v-model="username"
                     prepend-icon="face"
                     label="Username"
                     type="text"
-                    v-model="username"
-                    :rules="usernameRules"
-                  >
-                  </v-text-field>
+                    required
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
-              <v-layout>
+
+              <v-layout row>
                 <v-flex xs12>
                   <v-text-field
-                    prepend-icon="lock"
+                    :rules="passwordRules"
+                    v-model="password"
+                    prepend-icon="extension"
                     label="Password"
                     type="password"
-                    v-model="password"
-                    :rules="passwordRules"
-                  >
-                  </v-text-field>
+                    required
+                  ></v-text-field>
                 </v-flex>
               </v-layout>
-              <v-layout>
+
+              <v-layout row>
                 <v-flex xs12>
                   <v-btn
-                    color="accent"
-                    type="submit"
                     :loading="loading"
                     :disabled="!isFormValid || loading"
+                    color="accent"
+                    type="submit"
                   >
-                    <span slot="loader" class="custom-loader">
+                    <span
+                      slot="loader"
+                      class="custom-loader"
+                    >
                       <v-icon light>cached</v-icon>
                     </span>
-                    Sign in
-                  </v-btn>
-                  <h3>Don't have an account? <router-link to="/signup">Sign up!</router-link></h3>
+                    Signin</v-btn>
+                  <h3>Don't have an account?
+                    <router-link to="/signup">Signup</router-link>
+                  </h3>
                 </v-flex>
               </v-layout>
+
             </v-form>
           </v-container>
         </v-card>
       </v-flex>
     </v-layout>
+
   </v-container>
 </template>
 
@@ -106,84 +116,86 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'SignIn',
+  name: 'Signin',
   data() {
     return {
       isFormValid: true,
       username: '',
       password: '',
       usernameRules: [
+        // Check if username in input
         username => !!username || 'Username is required',
-        username => username.length < 10 || 'Username must be less than 10 characters',
+        // Make sure username is less than 10 characters
+        username =>
+          username.length < 10 || 'Username must be less than 10 characters'
       ],
       passwordRules: [
         password => !!password || 'Password is required',
-        password => password.length >= 4 || 'Password must be 4 characters or more',
+        // Make sure password is at least 7 characters
+        password =>
+          password.length >= 4 || 'Password must be at least 4 characters'
       ]
-    }
+    };
   },
   computed: {
-    ...mapGetters([
-      'user',
-      'error',
-      'loading',
-    ])
+    ...mapGetters(['loading', 'error', 'user'])
   },
   watch: {
     user(value) {
-      // If user prop changes, redirect to home page
+      // if user value changes, redirect to home page
       if (value) {
         this.$router.push('/')
       }
     }
   },
   methods: {
-    handleSignInUser() {
+    handleSigninUser() {
       if (this.$refs.form.validate()) {
-        this.$store.dispatch('signInUser', {
+        this.$store.dispatch('signinUser', {
           username: this.username,
-          password: this.password,
-        })
+          password: this.password
+        });
       }
     }
   }
-}
+};
 </script>
+
 <style>
-  .custom-loader {
-    animation: loader 1s infinite;
-    display: flex;
+.custom-loader {
+  animation: loader 1s infinite;
+  display: flex;
+}
+@-moz-keyframes loader {
+  from {
+    transform: rotate(0);
   }
-  @-moz-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
   }
-  @-webkit-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+}
+@-webkit-keyframes loader {
+  from {
+    transform: rotate(0);
   }
-  @-o-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
   }
-  @keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+}
+@-o-keyframes loader {
+  from {
+    transform: rotate(0);
   }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

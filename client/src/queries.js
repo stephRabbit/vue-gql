@@ -1,13 +1,12 @@
 import { gql } from 'apollo-boost'
 
-// Queries
+/* Posts Queries */
 export const GET_POSTS = gql`
   query {
     getPosts {
       _id
       title
       imageUrl
-      description
     }
   }
 `
@@ -18,9 +17,9 @@ export const GET_POST = gql`
       _id
       title
       imageUrl
+      categories
       description
       likes
-      categories
       createdDate
       messages {
         _id
@@ -36,6 +35,19 @@ export const GET_POST = gql`
   }
 `
 
+export const SEARCH_POSTS = gql`
+  query($searchTerm: String) {
+    searchPosts(searchTerm: $searchTerm) {
+      _id
+      title
+      description
+      imageUrl
+      likes
+    }
+  }
+`
+
+/* User Queries */
 export const GET_CURRENT_USER = gql`
   query {
     getCurrentUser {
@@ -54,13 +66,15 @@ export const GET_CURRENT_USER = gql`
   }
 `
 
-export const SEARCH_POSTS = gql`
-  query($searchTerm: String) {
-    searchPosts(searchTerm: $searchTerm) {
+export const GET_USER_POSTS = gql`
+  query($userId: ID!) {
+    getUserPosts(userId: $userId) {
       _id
-      imageUrl
       title
+      imageUrl
       description
+      categories
+      createdDate
       likes
     }
   }
@@ -74,23 +88,24 @@ export const INFINITE_SCROLL_POSTS = gql`
         _id
         title
         imageUrl
+        categories
         description
-        createdDate
         likes
+        createdDate
+        messages {
+          _id
+        }
         createdBy {
           _id
           username
           avatar
-        }
-        messages {
-          _id
         }
       }
     }
   }
 `
 
-// Mutations
+/* Posts Mutations */
 export const ADD_POST = gql`
   mutation(
     $title: String!
@@ -111,7 +126,46 @@ export const ADD_POST = gql`
       imageUrl
       categories
       description
+    }
+  }
+`
+
+export const UPDATE_USER_POST = gql`
+  mutation(
+    $postId: ID!
+    $userId: ID!
+    $title: String!
+    $imageUrl: String!
+    $categories: [String]!
+    $description: String!
+  ) {
+    updateUserPost(
+      postId: $postId
+      userId: $userId
+      title: $title
+      imageUrl: $imageUrl
+      categories: $categories
+      description: $description
+    ) {
+      _id
+      title
+      imageUrl
+      description
+      categories
       createdDate
+      likes
+      createdBy {
+        _id
+        avatar
+      }
+    }
+  }
+`
+
+export const DELETE_USER_POST = gql`
+  mutation($postId: ID!) {
+    deleteUserPost(postId: $postId) {
+      _id
     }
   }
 `
@@ -143,9 +197,6 @@ export const LIKE_POST = gql`
         _id
         title
         imageUrl
-        categories
-        description
-        createdDate
       }
     }
   }
@@ -164,17 +215,18 @@ export const UNLIKE_POST = gql`
   }
 `
 
-export const SIGN_IN_USER = gql`
+/* User Mutations */
+export const SIGNIN_USER = gql`
   mutation($username: String!, $password: String!) {
-    signInUser(username: $username, password: $password) {
+    signinUser(username: $username, password: $password) {
       token
     }
   }
 `
 
-export const SIGN_UP_USER = gql`
+export const SIGNUP_USER = gql`
   mutation($username: String!, $email: String!, $password: String!) {
-    signUpUser(username: $username, email: $email, password: $password) {
+    signupUser(username: $username, email: $email, password: $password) {
       token
     }
   }

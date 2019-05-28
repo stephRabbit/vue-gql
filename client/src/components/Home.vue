@@ -1,16 +1,23 @@
 <template>
   <v-container text-xs-center>
     <v-layout row>
-      <v-dialog v-model="loading" persistant fullscreen>
+      <v-dialog
+        v-model="loading"
+        persistent
+        fullscreen
+      >
         <v-container fill-height>
-          <v-layout row justify-center align-center>
+          <v-layout
+            row
+            justify-center
+            align-center
+          >
             <v-progress-circular
-              color="secondary"
               indeterminate
               :size="70"
               :width="7"
-            >
-            </v-progress-circular>
+              color="secondary"
+            ></v-progress-circular>
           </v-layout>
         </v-container>
       </v-dialog>
@@ -19,15 +26,16 @@
     <v-flex xs12>
       <v-carousel
         v-if="!loading && posts.length > 0"
-        v-bind="{'cycle': false}"
+        v-bind="{ 'cycle': false }"
+        interval="3000"
       >
         <v-carousel-item
-          @click.native="gotToPost(post._id)"
           v-for="post in posts"
           :key="post._id"
           :src="post.imageUrl"
+          @click.native="goToPost(post._id)"
         >
-          <h1 class="carsousel__title">{{post.title}}</h1>
+          <h1 id="carousel__title">{{post.title}}</h1>
         </v-carousel-item>
       </v-carousel>
     </v-flex>
@@ -40,32 +48,33 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'Home',
   created() {
-    this.handleGetCarouselPost()
-  },
-  methods: {
-    handleGetCarouselPost() {
-      // Reach out to Vuex store, fire action that gets posts for carsousel
-      this.$store.dispatch('getPosts')
-    },
-    gotToPost(postId) {
-      this.$router.push(`/posts/${postId}`)
-    }
+    this.handleGetCarouselPosts();
   },
   computed: {
-    ...mapGetters(['posts', 'loading'])
+    ...mapGetters(['loading', 'posts'])
+  },
+  methods: {
+    handleGetCarouselPosts() {
+      // reach out to Vuex store, fire action that gets posts for carousel
+      this.$store.dispatch('getPosts');
+    },
+    goToPost(postId) {
+      this.$router.push(`/posts/${postId}`)
+    }
   }
 }
 </script>
+
 <style>
-  .carsousel__title {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 5px 5px 0 0;
-    color: white;
-    padding: .5rem;
-    margin: 0 auto;
-    bottom: 50px;
-    left: 0;
-    right: 0;
-  }
+#carousel__title {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 5px 5px 0 0;
+  padding: 0.5em;
+  margin: 0 auto;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+}
 </style>

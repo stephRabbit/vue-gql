@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const md5 = require('md5')
 const bcrypt = require('bcrypt')
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
@@ -20,8 +20,7 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   avatar: {
-    type: String,
-    trim: true
+    type: String
   },
   joinDate: {
     type: Date,
@@ -34,37 +33,27 @@ const userSchema = new mongoose.Schema({
   }
 })
 
-/**
- * Pre-save hooks
- */
-userSchema.pre('save', function(next) { // Add avatar for user
+// Create and add avatar to user
+UserSchema.pre('save', function(next) {
   this.avatar = `http://gravatar.com/avatar/${md5(this.username)}?d=identicon`
   next()
 })
 
-userSchema.pre('save', function(next) { // Hash password
-  // Check if password is not modified
+// Hash password so it can't be seen w/ access to database
+UserSchema.pre('save', function(next) {
   if (!this.isModified('password')) {
     return next()
   }
-
-  // Generate salt
   bcrypt.genSalt(10, (err, salt) => {
-    if (err) {
-      return next(err)
-    }
+    if (err) return next(err)
 
-    // Generate hash
     bcrypt.hash(this.password, salt, (err, hash) => {
-      if (err) {
-        return next(err)
-      }
+      if (err) return next(err)
 
-      // Set password to generated hash
       this.password = hash
       next()
     })
   })
 })
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = mongoose.model('User', UserSchema)

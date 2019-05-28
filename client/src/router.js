@@ -1,57 +1,60 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ProtectedRoutes from './ProtectedRoutes'
 import Home from './components/Home.vue'
-import AddPost from './components/posts/AddPost.vue'
-import Posts from './components/posts/Posts.vue'
-import Post from './components/posts/Post.vue'
-import Profile from './components/auth/Profile.vue'
-import SignIn from './components/auth/SignIn.vue'
-import SignUp from './components/auth/SignUp.vue'
+
+import AddPost from './components/Posts/AddPost.vue'
+import Posts from './components/Posts/Posts.vue'
+import Post from './components/Posts/Post.vue'
+
+import Profile from './components/Auth/Profile.vue'
+import Signin from './components/Auth/Signin.vue'
+import Signup from './components/Auth/Signup.vue'
+
+import AuthGuard from './ProtectedRoutes'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
-  //base: process.env.BASE_URL,
+  // base: process.env.BASE_URL,
   routes: [
     {
       path: '/',
       name: 'home',
-      component: Home,
+      component: Home
     },
     {
       path: '/posts',
       name: 'Posts',
-      component: Posts,
+      component: Posts
     },
     {
       path: '/posts/:postId',
       name: 'Post',
       component: Post,
-      props: true,
+      props: true
     },
     {
       path: '/post/add',
       name: 'AddPost',
       component: AddPost,
-      beforeEnter: ProtectedRoutes,
+      beforeEnter: AuthGuard
     },
     {
       path: '/profile',
       name: 'Profile',
       component: Profile,
-      beforeEnter: ProtectedRoutes,
+      beforeEnter: AuthGuard
     },
     {
       path: '/signin',
-      name: 'SignIn',
-      component: SignIn,
+      name: 'Signin',
+      component: Signin
     },
     {
-      path: '/signup',
-      name: 'SignUp',
-      component: SignUp,
-    },
+      path: '/Signup',
+      name: 'Signup',
+      component: Signup
+    }
   ]
 })

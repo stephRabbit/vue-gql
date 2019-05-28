@@ -1,40 +1,50 @@
 <template>
+  <v-container
+    fluid
+    grid-list-xl
+  >
 
-  <v-container grid-list-xl fluid>
-    <v-layout row wrap v-if="infiniteScrollPosts">
+    <!-- Post Cards -->
+    <v-layout
+      row
+      wrap
+      v-if="infiniteScrollPosts"
+    >
       <v-flex
+        xs12
+        sm6
         v-for="post in infiniteScrollPosts.posts"
         :key="post._id"
       >
         <v-card hover>
           <v-img
-            @click="gotToPost(post._id)"
+            @click.native="goToPost(post._id)"
             :src="post.imageUrl"
             height="30vh"
             lazy
-          >
-          </v-img>
+          ></v-img>
+
           <v-card-actions>
             <v-card-title primary>
               <div>
                 <div class="headline">{{post.title}}</div>
-                <span class="gray--text">{{post.likes}} likes - {{post.messages.length}} comments</span>
+                <span class="grey--text">{{post.likes}} likes - {{post.messages.length}} comments</span>
               </div>
             </v-card-title>
             <v-spacer></v-spacer>
             <v-btn
-              icon
               @click="showPostCreator = !showPostCreator"
+              icon
             >
-              <v-icon>{{`keyboard_arrow_${showPostCreator ? 'up': 'down'}`}}</v-icon>
+              <v-icon>{{`keyboard_arrow_${showPostCreator ? 'up' : 'down'}`}}</v-icon>
             </v-btn>
           </v-card-actions>
 
-          <!-- Post Creator Title -->
+          <!-- Post Creator Tile -->
           <v-slide-y-transition>
             <v-card-text
-              class="grey lighten-4"
               v-show="showPostCreator"
+              class="grey lighten-4"
             >
               <v-list-tile avatar>
                 <v-list-tile-avatar>
@@ -47,46 +57,54 @@
                 </v-list-tile-content>
 
                 <v-list-tile-action>
-                  <v-btn icon>
+                  <v-btn
+                    icon
+                    ripple
+                  >
                     <v-icon color="grey lighten-1">info</v-icon>
                   </v-btn>
                 </v-list-tile-action>
               </v-list-tile>
             </v-card-text>
           </v-slide-y-transition>
+
         </v-card>
       </v-flex>
     </v-layout>
 
-    <!-- Load More Button -->
-    <v-layout column v-if="showMoreEnabled">
+    <!-- Fetch More Button -->
+    <v-layout
+      v-if="showMoreEnabled"
+      column
+    >
       <v-flex xs12>
-        <v-layout justify-center row>
+        <v-layout
+          justify-center
+          row
+        >
           <v-btn
             color="info"
             @click="showMorePosts"
-            v-if="showMoreEnabled"
-          >
-            Load More
-          </v-btn>
+          >Fetch More</v-btn>
         </v-layout>
       </v-flex>
     </v-layout>
+
   </v-container>
 </template>
 
 <script>
-import { INFINITE_SCROLL_POSTS } from '../../queries.js'
+import { INFINITE_SCROLL_POSTS } from '../../queries'
 
 const pageSize = 2
 
 export default {
-  name: 'Post',
+  name: 'Posts',
   data() {
     return {
       pageNum: 1,
       showMoreEnabled: true,
-      showPostCreator: false,
+      showPostCreator: false
     }
   },
   apollo: {
@@ -94,26 +112,26 @@ export default {
       query: INFINITE_SCROLL_POSTS,
       variables: {
         pageNum: 1,
-        pageSize,
+        pageSize
       }
     }
   },
   methods: {
-    gotToPost(postId) {
+    goToPost(postId) {
       this.$router.push(`/posts/${postId}`)
     },
     showMorePosts() {
       this.pageNum += 1
-      // Fetch more data and transform the original result
+      // fetch more data and transform original result
       this.$apollo.queries.infiniteScrollPosts.fetchMore({
         variables: {
-          // Incrementing pageNum by 1
+          // pageNum incremented by 1
           pageNum: this.pageNum,
-          pageSize,
+          pageSize
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
-          console.log('prevResult', prevResult.infiniteScrollPosts.posts)
-          console.log('fetchMoreResult', fetchMoreResult)
+          console.log('previous result', prevResult.infiniteScrollPosts.posts)
+          console.log('fetch more result', fetchMoreResult)
 
           const newPosts = fetchMoreResult.infiniteScrollPosts.posts
           const hasMore = fetchMoreResult.infiniteScrollPosts.hasMore
@@ -123,14 +141,11 @@ export default {
             infiniteScrollPosts: {
               __typename: prevResult.infiniteScrollPosts.__typename,
               // Merge previous posts with new posts
-              posts: [
-                ...prevResult.infiniteScrollPosts.posts,
-                ...newPosts,
-              ],
-              hasMore,
+              posts: [...prevResult.infiniteScrollPosts.posts, ...newPosts],
+              hasMore
             }
           }
-        },
+        }
       })
     }
   }

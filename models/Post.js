@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const postSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true
@@ -25,8 +25,8 @@ const postSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // property ('createdBy') === 'path'
-  // ref ('User') === 'model'
+  // property ('createdBy') === path
+  // ref ('User') === model
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -52,9 +52,8 @@ const postSchema = new mongoose.Schema({
 })
 
 // Create index to search on all fields of posts
-postSchema.index({
-  // Preform text searches on all fields
+PostSchema.index({
   '$**': 'text'
 })
 
-module.exports = mongoose.model('Post', postSchema)
+module.exports = mongoose.model('Post', PostSchema)
