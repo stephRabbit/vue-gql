@@ -312,6 +312,16 @@ export default {
 </script>
 
 <style>
+h1 {
+  font-size: 2.5rem;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 400;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-property: opacity;

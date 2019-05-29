@@ -1,10 +1,12 @@
+scalar Date
+
 type User {
   _id: ID
   username: String!
   email: String!
   password: String!
   avatar: String
-  joinDate: String
+  joinDate: Date
   favorites: [Post]
 }
 
@@ -14,7 +16,7 @@ type Post {
   imageUrl: String!
   categories: [String]!
   description: String!
-  createdDate: String
+  createdDate: Date
   likes: Int
   createdBy: User!
   messages: [Message]
@@ -23,7 +25,7 @@ type Post {
 type Message {
   _id: ID
   messageBody: String!
-  messageDate: String
+  messageDate: Date
   messageUser: User!
 }
 

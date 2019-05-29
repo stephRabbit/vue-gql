@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { GraphQLDateTime } = require('graphql-iso-date')
 
 const createToken = (user, secret, expiresIn) => {
   const { username, email } = user
@@ -7,6 +8,7 @@ const createToken = (user, secret, expiresIn) => {
 }
 
 module.exports = {
+  Date: GraphQLDateTime,
   Query: {
     getCurrentUser: async (_, args, { User, currentUser }) => {
       if (!currentUser) {
